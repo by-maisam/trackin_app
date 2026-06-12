@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+    
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-950 tracking-tight">Software Licenses</h1>
+            <p class="text-sm text-gray-500 mt-1">Track subscription keys, seat counts, and renewal deadlines</p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 font-medium text-xs uppercase tracking-wider border-b border-gray-200">
+                        <th class="p-4">Software Name</th>
+                        <th class="p-4">License Key</th>
+                        <th class="p-4">Total Seats</th>
+                        <th class="p-4">Expiration Date</th>
+                        <th class="p-4 text-right">Annual Cost</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700">
+                    {% for license in licenses %}
+                    <tr class="hover:bg-gray-50/70 transition-colors">
+                        <td class="p-4 font-semibold text-gray-900">{{ license.software_name }}</td>
+                        <td class="p-4 font-mono text-xs text-gray-500">{{ license.license_key }}</td>
+                        <td class="p-4 font-medium">{{ license.total_seats }} Seats</td>
+                        <td class="p-4 text-gray-500">{{ license.expiration_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="p-4 text-right font-semibold text-indigo-600">${{ "{:,.2f}".format(license.cost) }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-sm text-gray-400">No software licenses cataloged yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

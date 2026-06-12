@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+    
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-950 tracking-tight">Hardware Inventory</h1>
+            <p class="text-sm text-gray-500 mt-1">Full lifecycle tracking of enterprise physical devices</p>
+        </div>
+        <a href="{{ url_for('inventory.new_asset') }}" class="bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
+            + Intake New Asset
+        </a>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 font-medium text-xs uppercase tracking-wider border-b border-gray-200">
+                        <th class="p-4">Model Name</th>
+                        <th class="p-4">Serial Number</th>
+                        <th class="p-4">Category</th>
+                        <th class="p-4">Purchase Date</th>
+                        <th class="p-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700">
+                    {% for asset in assets %}
+                    <tr class="hover:bg-gray-50/70 transition-colors">
+                        <td class="p-4 font-semibold text-gray-900">{{ asset.model_name }}</td>
+                        <td class="p-4 font-mono text-xs">{{ asset.serial_number }}</td>
+                        <td class="p-4 text-gray-500">{{ asset.category }}</td>
+                        <td class="p-4 text-gray-500">{{ asset.purchase_date.strftime('%Y-%m-%d') }}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold 
+                                {% if asset.status == 'Available' %}bg-green-50 text-green-700
+                                {% elif asset.status == 'Assigned' %}bg-indigo-50 text-indigo-700
+                                {% else %}bg-amber-50 text-amber-700{% endif %}">
+                                {{ asset.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-sm text-gray-400">No hardware hardware inventory items cataloged yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% if open_modal %}
+    <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl border border-gray-100 max-w-md w-full overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-900">Intake Hardware Asset</h3>
+                <a href="{{ url_for('inventory.list_assets') }}" class="text-gray-400 hover:text-gray-600 text-xl">&times;</a>
+            </div>
+            
+            <form action="{{ url_for('inventory.new_asset') }}" method="POST" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Model Name</label>
+                    <input type="text" name="model_name" required placeholder="ThinkPad T480"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Serial Number</label>
+                    <input type="text" name="serial_number" required placeholder="BRK1928374"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category" required class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="Laptop">Laptop</option>
+                        <option value="Monitor">Monitor</option>
+                        <option value="Peripheral">Peripheral</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Purchase Date</label>
+                    <input type="date" name="purchase_date" required
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div class="pt-2 flex justify-end space-x-3">
+                    <a href="{{ url_for('inventory.list_assets') }}" class="px-4 py-2 border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors">Cancel</a>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition-colors">Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
