@@ -8,12 +8,13 @@ def create_app(config_class=Config):
     
     db.init_app(app)
     
-    # Register Blueprints
+    
     from app.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     
-    @app.route('/health')
-    def health_check():
-        return {"status": "healthy", "project": "Trackin Portfolio App"}, 200
+    
+    from app.routes import admin_bp, inventory_bp
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(inventory_bp)
     
     return app

@@ -48,7 +48,7 @@ def login():
         session['user_role'] = user.role
         session['user_name'] = user.full_name
         
-        return redirect(url_for('health_check')) # Temporary redirect until dashboards are ready
+        return redirect(url_for('admin.dashboard'))
         
     return render_template('auth/login.html')
 
