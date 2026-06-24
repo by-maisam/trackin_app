@@ -7,15 +7,15 @@ class User(db.Model):
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     role = db.Column(db.String(20), default='Employee')
 
-    def set_password(self, password):
+    def hash_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    def check_password(self, password):
+    def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
 
@@ -28,9 +28,9 @@ class Asset(db.Model):
     category = db.Column(db.String(50), nullable=False)
     purchase_date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(20), default='Available')
-    assigned_to_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    assigned_to = db.Column(db.Integer, db.ForeignKey('users.id'))
     
-    assigned_user = db.relationship('User', backref='assets')
+    user = db.relationship('User', backref='assigned_assets')
 
 
 class License(db.Model):
