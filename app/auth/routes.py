@@ -1,33 +1,28 @@
-from flask import render_template, redirect, url_for, flash, request, session
-from app.auth import auth_bp
+from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from app.models import db, User
-from werkzeug.security import generate_password_hash, check_password_hash
+
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
         full_name = request.form.get('full_name')
+        u_email = request.form.get('email')
+        u_role = request.form.get('role')
+        pass_word = request.form.get('password')
         
-        user_exists = User.query.filter_by(email=email).first()
-        if user_exists:
-            flash('Email address already registered', 'error')
+        existing_user = User.query.filter_by(email=u_email).first()
+        if existing_user:
+            flash('That email is already taken.', 'error')
             return redirect(url_for('auth.register'))
-        
-        hashed_password = generate_password_hash(password, method='scrypt')
-        
-        new_user = User(
-            email=email,
-            password_hash=hashed_password,
-            full_name=full_name,
-            role='Employee'
-        )
+            
+        new_user = User(name=full_name, email=u_email, role=u_role)
+        new_user.hash_password(pass_word)
         
         db.session.add(new_user)
         db.session.commit()
         
-        flash('Registration successful! Please log in.', 'success')
+        flash('Account created! You can log in now.', 'success')
         return redirect(url_for('auth.login'))
         
     return render_template('auth/register.html')
@@ -35,25 +30,23 @@ def register():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
+        email_input = request.form.get('email')
+        pass_input = request.form.get('password')
         
-        user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email_input).first()
         
-        if not user or not check_password_hash(user.password_hash, password):
-            flash('Please check your login details and try again.', 'error')
-            return redirect(url_for('auth.login'))
-        
-        session['user_id'] = user.id
-        session['user_role'] = user.role
-        session['user_name'] = user.full_name
-        
-        return redirect(url_for('admin.dashboard'))
+        if user and user.verify_password(pass_input):
+            session['user_id'] = user.id
+            session['user_name'] = user.name
+            session['user_role'] = user.role
+            return redirect(url_for('admin.dashboard'))
+            
+        flash('Wrong email or password.', 'error')
+        return redirect(url_for('auth.login'))
         
     return render_template('auth/login.html')
 
 @auth_bp.route('/logout')
 def logout():
     session.clear()
-    flash('You have been logged out.', 'success')
     return redirect(url_for('auth.login'))
